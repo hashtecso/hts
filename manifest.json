@@ -1,0 +1,20 @@
+{
+  "name": "Hash Tec Solutions Facturación",
+  "short_name": "HTS Facturas",
+  "start_url": "./HTS.html",
+  "display": "standalone",
+  "background_color": "#f4f4f9",
+  "theme_color": "#0056b3",
+  "icons": [
+    {
+      "src": "HTS.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "HTS.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

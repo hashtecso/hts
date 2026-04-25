@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" sizes="64x64" href="HTS.png">
+    <title>Hash Tec Solutions - Facturación</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0056b3">
+    <link rel="apple-touch-icon" href="HTS.png">
+    <style>
+        body { 
+            font-family: Arial, sans-serif;
+            margin: 0; 
+            padding: 20px; 
+            color: #333;
+            background-color: #f4f4f9;
+        }
+
+        /* Pantalla de Inicio */
+        #selector-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 80vh;
+        }
+        .selector-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .selector-options {
+            display: flex;
+            gap: 20px;
+            margin-top: 25px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .opt-btn {
+            padding: 15px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            transition: transform 0.2s;
+            cursor: pointer;
+            border: none;
+            color: white;
+            background-color: #0056b3;
+        }
+        .opt-btn:hover { transform: scale(1.05); }
+        .btn-load { background-color: #17a2b8; }
+        .btn-load:hover { background-color: #138496; }
+
+        /* Contenedor Principal */
+        .container {
+            max-width: 800px;
+            margin: auto;
+            border: 1px solid #ccc;
+            padding: 30px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            background: white;
+            display: none; 
+        }
+        .controls { 
+            margin-bottom: 20px;
+            padding: 15px; 
+            background: #f8f9fa; 
+            border-radius: 5px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        button {
+            padding: 10px 15px;
+            cursor: pointer;
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover { background-color: #003d82; }
+        .btn-save { background-color: #28a745; }
+        .btn-save:hover { background-color: #218838; }
+        .btn-home { background-color: #6c757d; }
+        .btn-danger { background-color: #dc3545; padding: 5px 10px; }
+
+        .logo {
+            max-width: 100px;
+            height: auto;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .header { 
+            display: flex;
+            justify-content: space-between; 
+            margin-bottom: 30px; 
+        }
+        .company-info h2 { color: #0056b3; margin-top: 0; }
+        .company-info p, .doc-info p { margin: 5px 0; font-size: 14px; }
+        .doc-info { text-align: right; }
+        .doc-info h1 { margin-top: 0; color: #333; }
+
+        .editable-number, .editable-status, .editable-text {
+            border: 1px solid #ccc;
+            padding: 2px 5px;
+            font-weight: bold;
+            font-family: inherit;
+        }
+        .editable-number {
+            width: 120px;
+            text-align: right;
+        }
+        .editable-status {
+            width: 130px;
+            background-color: #fff;
+            cursor: pointer;
+        }
+        .editable-text {
+            width: 200px;
+            font-weight: normal;
+        }
+        
+        .client-info {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .client-info input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+        }
+
+        table { 
+            width: 100%;
+            border-collapse: collapse; 
+            margin-bottom: 20px; 
+        }
+        th, td { 
+            border: 1px solid #ddd;
+            padding: 10px; 
+            text-align: left; 
+        }
+        th { background-color: #0e30ee; color: white; }
+        
+        input[list], input[type="number"] {
+            width: 100%;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+        
+        .totals { text-align: right; font-size: 16px; }
+        .totals p { margin: 5px 0; }
+        .totals strong { font-size: 18px; }
+
+        .payment-info {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ccc;
+            display: none; 
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* --- Ventana Emergente --- */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0; top: 0; 
+            width: 100%; height: 100%; 
+            background-color: rgba(0,0,0,0.5); 
+            align-items: center; 
+            justify-content: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .close-btn {
+            background: none;
+            color: #333;
+            font-size: 24px;
+            font-weight: bold;
+            padding: 0;
+            cursor: pointer;
+        }
+        .close-btn:hover { background: none; color: red; }
+        .saved-doc-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f8f9fa;
+        }
+        .saved-doc-info p { margin: 3px 0; }
+        .saved-doc-actions { display: flex; gap: 5px; }
+
+        @media print {
+            body { padding: 0; background-color: white; }
+            .container { border: none; box-shadow: none; padding: 0; }
+            .controls, .btn-danger, #selector-screen, .modal { display: none !important; }
+            input, select { border: none; background: transparent; appearance: none; -webkit-appearance: none; }
+            .editable-number, .editable-status, .editable-text { border: none; width: auto; cursor: default; padding: 0;}
+            .payment-info { display: flex !important; } 
+        }
+    </style>
+</head>
+<body>
+
+    <div id="selector-screen">
+        <div class="selector-container">
+            <img src="HTS.png" alt="Logo" style="max-width: 120px; margin-bottom: 15px;">
+            <h2>Hash Tec Solutions</h2>
+            <p>Seleccione el tipo de documento para iniciar:</p>
+            <div class="selector-options">
+                <button type="button" class="opt-btn" onclick="startApp('COT')">📄 Nueva Cotización</button>
+                <button type="button" class="opt-btn" style="background-color: #0e30ee;" onclick="startApp('FAC')">🧾 Nueva Factura</button>
+                <button type="button" class="opt-btn btn-load" onclick="showLoadModal()">📂 Documentos Guardados</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="main-app">
+        <div class="controls">
+            <button type="button" class="btn-home" onclick="location.reload()">🏠 Inicio</button>
+            <button type="button" id="convertBtn" onclick="convertToInvoice()">Convertir a Factura</button>
+            <button type="button" class="btn-save" onclick="saveQuotation()">💾 Guardar</button>
+            <button type="button" class="btn-load" onclick="showLoadModal()">📂 Ver Guardados</button>
+            <button type="button" onclick="addRow('', 1, 0)">+ Agregar Artículo</button>
+            <button type="button" onclick="window.print()">🖨️ Imprimir / PDF</button>
+        </div>
+
+        <div class="header">
+            <div class="company-info">
+                <img src="HTS.png" alt="Logo" class="logo">
+                <h2>Hash Tec Solutions</h2>
+                <p>Panamá</p>
+                <p>RUC/Cédula: 8-812-1161</p>
+                <p>Tel: 6269-3224</p>
+                <p>Email: hashtecsolutions@gmail.com</p>
+            </div>
+            <div class="doc-info">
+                <h1 id="docTypeTitle">Cotización</h1>
+                <p><strong>N°:</strong> 
+                   <input type="text" id="docNumber" class="editable-number" value="COT2026/1">
+                </p>
+                <p><strong>Estado:</strong> 
+                    <select id="docStatus" class="editable-status" onchange="togglePaymentInfo()">
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Pagada">Pagada</option>
+                    </select>
+                </p>
+                <p><strong>Fecha:</strong> <span id="docDateDisplay"></span></p>
+            </div>
+        </div>
+
+        <div class="client-info">
+            <strong>Datos del cliente</strong>
+            <input type="text" id="clientName" list="clientList" placeholder="Nombre de la empresa o cliente (Seleccione o escriba)" oninput="autoFillRUC()">
+            <input type="text" id="clientRUC" placeholder="RUC / Identificación">
+        </div>
+
+        <table id="itemsTable">
+            <thead>
+                <tr>
+                    <th style="width: 45%;">Artículo</th>
+                    <th style="width: 15%;">Uds.</th>
+                    <th style="width: 20%;">Precio (PAB)</th>
+                    <th style="width: 20%;">Total (PAB)</th>
+                    <th class="controls" style="width: 5%;"></th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+
+        <div class="totals">
+            <p>Subtotal: <strong>PAB <span id="subtotalAmount">0.00</span></strong></p>
+            <p>Total: <strong>PAB <span id="totalAmount">0.00</span></strong></p>
+        </div>
+
+        <div class="payment-info" id="paymentSection">
+            <strong>Método de pago:</strong>
+            <select id="paymentMethod" class="editable-status" onchange="updatePaymentDetails()">
+                <option value="Yappy">Yappy</option>
+                <option value="Efectivo">Efectivo</option>
+                <option value="ACH">ACH</option>
+                <option value="Cheque">Cheque</option>
+            </select>
+            <input type="text" id="paymentDetails" class="editable-text" value="6269-3224" placeholder="Detalles o referencia">
+        </div>
+    </div>
+
+    <div id="loadModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Documentos Guardados</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="savedDocsList"></div>
+        </div>
+    </div>
+
+    <script>
+        const defaultCatalog = {
+            "UPS": 45.00,
+            "Unión RJ45": 2.60,
+            "Aux corriente CAM": 3.00,
+            "Balun BNC RJ45": 10.00,
+            "Mano de obra": 30.00
+        };
+        
+        let currentCatalog = {};
+        let savedClients = {}; // Objeto para almacenar clientes guardados
+
+        // --- FUNCIONES DE CARGA Y CONSTRUCCIÓN DE LISTAS ---
+        function loadData() {
+            // Cargar Catálogo
+            const customCatalog = JSON.parse(localStorage.getItem('hts_custom_catalog')) || {};
+            currentCatalog = Object.assign({}, defaultCatalog, customCatalog);
+            
+            // Cargar Clientes
+            savedClients = JSON.parse(localStorage.getItem('hts_saved_clients')) || {};
+        }
+
+        function buildDataLists() {
+            // Lista de Artículos
+            let itemDatalist = document.getElementById('catalogList');
+            if(itemDatalist) { itemDatalist.remove(); }
+            itemDatalist = document.createElement('datalist');
+            itemDatalist.id = 'catalogList';
+            for (const item in currentCatalog) {
+                const option = document.createElement('option');
+                option.value = item;
+                itemDatalist.appendChild(option);
+            }
+            document.body.appendChild(itemDatalist);
+
+            // Lista de Clientes
+            let clientDatalist = document.getElementById('clientList');
+            if(clientDatalist) { clientDatalist.remove(); }
+            clientDatalist = document.createElement('datalist');
+            clientDatalist.id = 'clientList';
+            for (const clientName in savedClients) {
+                const option = document.createElement('option');
+                option.value = clientName;
+                clientDatalist.appendChild(option);
+            }
+            document.body.appendChild(clientDatalist);
+        }
+
+        function setFormattedDate() {
+            const today = new Date();
+            const day = String(today.getDate()).padStart(2, '0');
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const year = today.getFullYear();
+            document.getElementById('docDateDisplay').textContent = day + '/' + month + '/' + year;
+        }
+
+        // --- LÓGICA DE INTERFAZ ---
+        function autoFillRUC() {
+            const clientName = document.getElementById('clientName').value;
+            // Si el cliente existe en nuestra lista guardada, rellenar el RUC
+            if (savedClients[clientName] !== undefined) {
+                document.getElementById('clientRUC').value = savedClients[clientName];
+            }
+        }
+
+        function togglePaymentInfo() {
+            const status = document.getElementById('docStatus').value;
+            if (status === "Pagada") {
+                document.getElementById('paymentSection').style.display = "flex";
+            } else {
+                document.getElementById('paymentSection').style.display = "none";
+            }
+        }
+
+        function updatePaymentDetails() {
+            const method = document.getElementById('paymentMethod').value;
+            const detailsInput = document.getElementById('paymentDetails');
+            
+            if (method === 'Yappy') {
+                detailsInput.value = '6269-3224';
+            } else if (method === 'Efectivo') {
+                detailsInput.value = '';
+                detailsInput.placeholder = 'Monto exacto';
+            } else if (method === 'ACH') {
+                detailsInput.value = '';
+                detailsInput.placeholder = 'N° de cuenta o referencia';
+            } else if (method === 'Cheque') {
+                detailsInput.value = '';
+                detailsInput.placeholder = 'N° de cheque';
+            }
+        }
+
+        function startApp(type) {
+            document.getElementById('selector-screen').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+            
+            if (type === 'FAC') {
+                document.getElementById('docTypeTitle').textContent = "Factura";
+                document.getElementById('docNumber').value = "FAC2026/1";
+                document.getElementById('docStatus').value = "Pagada";
+                document.getElementById('convertBtn').style.display = "none";
+            } else {
+                document.getElementById('docTypeTitle').textContent = "Cotización";
+                document.getElementById('docNumber').value = "COT2026/1";
+                document.getElementById('docStatus').value = "Pendiente";
+                document.getElementById('convertBtn').style.display = "inline-block";
+            }
+            
+            togglePaymentInfo();
+            updatePaymentDetails(); 
+            
+            if (document.querySelector('#itemsTable tbody').children.length === 0) {
+                addRow('', 1, 0);
+            }
+        }
+
+        function addRow(itemName, qty, price) {
+            itemName = itemName || "";
+            qty = qty || 1;
+            price = price || 0;
+
+            const tbody = document.querySelector('#itemsTable tbody');
+            const tr = document.createElement('tr');
+            const safePrice = parseFloat(price).toFixed(2);
+            
+            tr.innerHTML = 
+                '<td><input type="text" list="catalogList" placeholder="Escriba..." oninput="updatePrice(this)" value="' + itemName + '"></td>' +
+                '<td><input type="number" value="' + qty + '" min="1" onchange="calculateTotals()"></td>' +
+                '<td><input type="number" value="' + safePrice + '" step="0.01" onchange="calculateTotals()"></td>' +
+                '<td class="row-total">PAB 0.00</td>' +
+                '<td class="controls"><button type="button" class="btn-danger" onclick="removeRow(this)">X</button></td>';
+            
+            tbody.appendChild(tr);
+            calculateTotals();
+        }
+
+        function removeRow(button) {
+            button.closest('tr').remove();
+            calculateTotals();
+        }
+
+        function updatePrice(inputElem) {
+            const row = inputElem.closest('tr');
+            const priceInput = row.querySelector('td:nth-child(3) input');
+            if (currentCatalog[inputElem.value] !== undefined) {
+                priceInput.value = currentCatalog[inputElem.value].toFixed(2);
+            }
+            calculateTotals();
+        }
+
+        function calculateTotals() {
+            let subtotal = 0;
+            const rows = document.querySelectorAll('#itemsTable tbody tr');
+            rows.forEach(function(row) {
+                const qty = parseFloat(row.querySelector('td:nth-child(2) input').value) || 0;
+                const price = parseFloat(row.querySelector('td:nth-child(3) input').value) || 0;
+                const rowTotal = qty * price;
+                row.querySelector('.row-total').textContent = "PAB " + rowTotal.toFixed(2);
+                subtotal += rowTotal;
+            });
+            document.getElementById('subtotalAmount').textContent = subtotal.toFixed(2);
+            document.getElementById('totalAmount').textContent = subtotal.toFixed(2);
+        }
+
+        function convertToInvoice() {
+            document.getElementById('docTypeTitle').textContent = "Factura";
+            let inputNumber = document.getElementById('docNumber');
+            if(inputNumber.value.includes("COT")) {
+                inputNumber.value = inputNumber.value.replace("COT", "FAC");
+            } else if (!inputNumber.value.includes("FAC")) {
+                inputNumber.value = "FAC-" + inputNumber.value;
+            }
+            document.getElementById('docStatus').value = "Pagada";
+            togglePaymentInfo();
+            document.getElementById('convertBtn').style.display = "none";
+            alert("Convertido a Factura correctamente. (Recuerda Guardar si deseas mantener los cambios)");
+        }
+
+        // --- SISTEMA DE GUARDADO ---
+        function saveQuotation() {
+            const currentDocNumber = document.getElementById('docNumber').value;
+            if(currentDocNumber.trim() === "") {
+                alert("El documento debe tener un número (N°) antes de guardarse.");
+                return;
+            }
+
+            const clientNameVal = document.getElementById('clientName').value.trim();
+            const clientRUCVal = document.getElementById('clientRUC').value.trim();
+
+            const data = {
+                id: currentDocNumber,
+                type: document.getElementById('docTypeTitle').textContent,
+                docNumber: currentDocNumber,
+                docStatus: document.getElementById('docStatus').value, 
+                docDate: document.getElementById('docDateDisplay').textContent,
+                clientName: clientNameVal || "Cliente sin nombre",
+                clientRUC: clientRUCVal,
+                total: document.getElementById('totalAmount').textContent,
+                paymentMethod: document.getElementById('paymentMethod').value,
+                paymentDetails: document.getElementById('paymentDetails').value,
+                items: []
+            };
+            
+            // GUARDAR O ACTUALIZAR CLIENTE
+            if (clientNameVal !== "") {
+                savedClients[clientNameVal] = clientRUCVal;
+                localStorage.setItem('hts_saved_clients', JSON.stringify(savedClients));
+            }
+
+            let customCatalog = JSON.parse(localStorage.getItem('hts_custom_catalog')) || {};
+            let catalogUpdated = false;
+
+            const rows = document.querySelectorAll('#itemsTable tbody tr');
+            rows.forEach(function(row) {
+                const name = row.querySelector('td:nth-child(1) input').value.trim();
+                const price = parseFloat(row.querySelector('td:nth-child(3) input').value) || 0;
+                
+                if (name !== "") {
+                    data.items.push({
+                        name: name,
+                        qty: row.querySelector('td:nth-child(2) input').value,
+                        price: row.querySelector('td:nth-child(3) input').value
+                    });
+
+                    // APRENDIZAJE DE ARTÍCULOS
+                    if (currentCatalog[name] === undefined && price > 0) {
+                        customCatalog[name] = price;
+                        catalogUpdated = true;
+                    }
+                }
+            });
+
+            // Guardar documento
+            let savedDocs = JSON.parse(localStorage.getItem('hts_saved_docs_list')) || [];
+            const existingIndex = savedDocs.findIndex(doc => doc.id === data.id);
+            if(existingIndex >= 0) {
+                savedDocs[existingIndex] = data; 
+            } else {
+                savedDocs.push(data); 
+            }
+            localStorage.setItem('hts_saved_docs_list', JSON.stringify(savedDocs));
+
+            // Actualizar listas si hubo cambios
+            if(catalogUpdated || clientNameVal !== "") {
+                if(catalogUpdated) localStorage.setItem('hts_custom_catalog', JSON.stringify(customCatalog));
+                loadData();
+                buildDataLists();
+            }
+
+            alert("Documento '" + data.id + "' guardado exitosamente.");
+        }
+
+        // --- VENTANA MODAL (ADMINISTRACIÓN) ---
+        function showLoadModal() {
+            const savedDocs = JSON.parse(localStorage.getItem('hts_saved_docs_list')) || [];
+            const listContainer = document.getElementById('savedDocsList');
+            listContainer.innerHTML = '';
+
+            if (savedDocs.length === 0) {
+                listContainer.innerHTML = '<p style="text-align:center; color:#666;">No hay documentos guardados aún.</p>';
+            } else {
+                savedDocs.slice().reverse().forEach(function(doc) {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'saved-doc-item';
+                    
+                    const badgeColor = doc.type === 'Factura' ? '#0e30ee' : '#28a745';
+                    const statusText = doc.docStatus ? `<span style="font-size:12px; border:1px solid #ccc; padding:2px 5px; border-radius:3px;">${doc.docStatus}</span>` : '';
+                    
+                    itemDiv.innerHTML = 
+                        '<div class="saved-doc-info">' +
+                            '<p><strong style="color:' + badgeColor + '">[' + doc.type + ']</strong> <b>' + doc.docNumber + '</b> ' + statusText + ' - ' + doc.docDate + '</p>' +
+                            '<p>' + doc.clientName + '</p>' +
+                            '<p>Total: PAB ' + doc.total + '</p>' +
+                        '</div>' +
+                        '<div class="saved-doc-actions">' +
+                            '<button class="btn-load" onclick="applySavedDoc(\'' + doc.id + '\')">Abrir</button>' +
+                            '<button class="btn-danger" onclick="deleteSavedDoc(\'' + doc.id + '\')">Borrar</button>' +
+                        '</div>';
+                    
+                    listContainer.appendChild(itemDiv);
+                });
+            }
+            
+            document.getElementById('loadModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('loadModal').style.display = 'none';
+        }
+
+        function applySavedDoc(docId) {
+            const savedDocs = JSON.parse(localStorage.getItem('hts_saved_docs_list')) || [];
+            const data = savedDocs.find(doc => doc.id === docId);
+            
+            if(data) {
+                startApp(data.type === 'Factura' ? 'FAC' : 'COT');
+                
+                document.getElementById('docNumber').value = data.docNumber;
+                document.getElementById('docDateDisplay').textContent = data.docDate;
+                document.getElementById('clientName').value = data.clientName === "Cliente sin nombre" ? "" : data.clientName;
+                document.getElementById('clientRUC').value = data.clientRUC || "";
+                
+                if (data.docStatus) { document.getElementById('docStatus').value = data.docStatus; }
+                
+                if (data.paymentMethod) { document.getElementById('paymentMethod').value = data.paymentMethod; }
+                if (data.paymentDetails !== undefined) { document.getElementById('paymentDetails').value = data.paymentDetails; }
+                
+                togglePaymentInfo();
+                
+                const tbody = document.querySelector('#itemsTable tbody');
+                tbody.innerHTML = '';
+                
+                if (data.items && data.items.length > 0) {
+                    data.items.forEach(function(item) {
+                        addRow(item.name, item.qty, item.price);
+                    });
+                } else {
+                    addRow('', 1, 0);
+                }
+                
+                closeModal();
+            }
+        }
+
+        function deleteSavedDoc(docId) {
+            if(confirm("¿Estás seguro de que deseas borrar el documento " + docId + "?")) {
+                let savedDocs = JSON.parse(localStorage.getItem('hts_saved_docs_list')) || [];
+                savedDocs = savedDocs.filter(doc => doc.id !== docId);
+                localStorage.setItem('hts_saved_docs_list', JSON.stringify(savedDocs));
+                showLoadModal(); 
+            }
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('loadModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+        window.onload = function() {
+            loadData(); 
+            setFormattedDate();
+            buildDataLists();
+        };
+        // Registrar Service Worker para la PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('./sw.js').then(function(registration) {
+                    console.log('ServiceWorker registrado con éxito con el alcance: ', registration.scope);
+                }, function(err) {
+                    console.log('Fallo al registrar el ServiceWorker: ', err);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
