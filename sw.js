@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 const CACHE_NAME = 'hts-cache-v1';
 const urlsToCache = [
   './HTS.html',
@@ -94,3 +95,6 @@ self.addEventListener('fetch', event => {
   );
 });
 >>>>>>> d0bb987d27a60792bf6027ad959d7783c7befc54
+=======
+
+>>>>>>> 193b65586528552d0ce04189e89ccb6d42b3fb44
