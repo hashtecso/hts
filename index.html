@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" sizes="64x64" href="HTS.png">
+    
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0056b3">
     <link rel="apple-touch-icon" href="HTS.png">
     
     <title>Hash Tec Solutions - Facturación</title>
-    
+
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     
     <style>
@@ -27,7 +28,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 80vh;
+            min-height: 80vh;
         }
         .login-container {
             background: white;
@@ -37,6 +38,7 @@
             text-align: center;
             width: 100%;
             max-width: 400px;
+            box-sizing: border-box;
         }
         .login-container img {
             max-width: 120px;
@@ -54,7 +56,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 80vh;
+            min-height: 80vh;
         }
         .selector-container {
             background: white;
@@ -62,10 +64,13 @@
             border-radius: 10px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             text-align: center;
+            width: 100%;
+            max-width: 500px;
+            box-sizing: border-box;
         }
         .selector-options {
             display: flex;
-            gap: 20px;
+            gap: 15px;
             margin-top: 25px;
             justify-content: center;
             flex-wrap: wrap;
@@ -80,6 +85,7 @@
             border: none;
             color: white;
             background-color: #0056b3;
+            flex: 1 1 200px;
         }
         .opt-btn:hover { transform: scale(1.05); }
         .btn-load { background-color: #17a2b8; }
@@ -100,7 +106,9 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             background: white;
             display: none; 
+            box-sizing: border-box;
         }
+        
         .controls { 
             margin-bottom: 20px;
             padding: 15px; 
@@ -109,6 +117,7 @@
             display: flex;
             flex-wrap: wrap;
             align-items: center;
+            justify-content: center;
             gap: 10px;
         }
         button {
@@ -118,13 +127,14 @@
             color: white;
             border: none;
             border-radius: 4px;
+            font-size: 14px;
         }
         button:hover { background-color: #003d82; }
         .btn-save { background-color: #28a745; }
         .btn-save:hover { background-color: #218838; }
         .btn-home { background-color: #6c757d; }
         .btn-danger { background-color: #dc3545; padding: 5px 10px; }
-        .btn-logout { background-color: #dc3545; margin-left: auto; }
+        .btn-logout { background-color: #dc3545; }
 
         .logo {
             max-width: 100px;
@@ -145,13 +155,14 @@
 
         .editable-number, .editable-status, .editable-text {
             border: 1px solid #ccc;
-            padding: 2px 5px;
+            padding: 4px 8px;
             font-weight: bold;
             font-family: inherit;
+            border-radius: 4px;
         }
         .editable-number { width: 120px; text-align: right; }
         .editable-status { width: 130px; background-color: #fff; cursor: pointer; }
-        .editable-text { width: 200px; font-weight: normal; }
+        .editable-text { width: 100%; max-width: 250px; font-weight: normal; margin-top: 5px; }
         
         .client-info {
             background: #f8f9fa;
@@ -161,33 +172,51 @@
         }
         .client-info input {
             width: 100%;
-            padding: 8px;
+            padding: 10px;
             margin-top: 5px;
             margin-bottom: 10px;
             box-sizing: border-box;
             border: 1px solid #ccc;
+            border-radius: 4px;
         }
 
+        /* --- Tabla Responsiva --- */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+        }
         table { 
             width: 100%;
             border-collapse: collapse; 
-            margin-bottom: 20px; 
+            min-width: 600px; 
         }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
         th { background-color: #0e30ee; color: white; }
-        input[list], input[type="number"] { width: 100%; padding: 5px; box-sizing: border-box; }
+        input[list], input[type="number"] { 
+            width: 100%; 
+            padding: 8px; 
+            box-sizing: border-box; 
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
         
-        .totals { text-align: right; font-size: 16px; }
+        .totals { text-align: right; font-size: 16px; margin-bottom: 20px;}
         .totals p { margin: 5px 0; }
         .totals strong { font-size: 18px; }
 
         .payment-info {
-            margin-top: 30px;
+            margin-top: 20px;
             padding-top: 20px;
             border-top: 1px solid #ccc;
             display: none; 
-            align-items: center;
+            flex-direction: column;
             gap: 10px;
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
         }
 
         /* --- Ventana Emergente --- */
@@ -198,20 +227,39 @@
         }
         .modal-content {
             background-color: white; padding: 20px; border-radius: 8px;
-            width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto;
+            width: 95%; max-width: 600px; max-height: 80vh; overflow-y: auto;
         }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ccc; padding-bottom: 10px; margin-bottom: 15px; }
-        .close-btn { background: none; color: #333; font-size: 24px; font-weight: bold; padding: 0; cursor: pointer; }
-        .saved-doc-item { border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; background-color: #f8f9fa; }
-        .saved-doc-actions { display: flex; gap: 5px; }
+        .close-btn { background: none; color: #333; font-size: 24px; font-weight: bold; padding: 0; cursor: pointer; border: none; }
+        .saved-doc-item { border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 5px; display: flex; flex-direction: column; gap: 10px; background-color: #f8f9fa; }
+        .saved-doc-actions { display: flex; gap: 5px; justify-content: flex-end;}
 
+        /* =========================================================
+           ADAPTACIÓN PARA MÓVILES (CSS MEDIA QUERIES)
+           ========================================================= */
+        @media screen and (max-width: 650px) {
+            body { padding: 10px; }
+            .container, .login-container, .selector-container { padding: 15px; }
+            .header { flex-direction: column; align-items: center; text-align: center; }
+            .company-info { display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; width: 100%; }
+            .doc-info { text-align: center; width: 100%; }
+            .editable-number, .editable-status { text-align: center; }
+            .controls button { flex: 1 1 45%; }
+            .saved-doc-item { flex-direction: column; align-items: flex-start; }
+            .saved-doc-actions { width: 100%; justify-content: space-between; }
+            .saved-doc-actions button { flex: 1; }
+        }
+
+        /* --- Estilos para Impresión --- */
         @media print {
             body { padding: 0; background-color: white; }
             .container { border: none; box-shadow: none; padding: 0; }
             .controls, .btn-danger, #selector-screen, #login-screen, .modal { display: none !important; }
-            input, select { border: none; background: transparent; appearance: none; -webkit-appearance: none; }
-            .editable-number, .editable-status, .editable-text { border: none; width: auto; cursor: default; padding: 0;}
-            .payment-info { display: flex !important; } 
+            input, select { border: none; background: transparent; appearance: none; -webkit-appearance: none; padding: 0; }
+            .editable-number, .editable-status, .editable-text { border: none; width: auto; cursor: default; }
+            .payment-info { display: flex !important; background: transparent; padding: 0; } 
+            .table-responsive { border: none; overflow: visible; }
+            table { min-width: auto; }
         }
     </style>
 </head>
@@ -222,8 +270,7 @@
             <img src="HTS.png" alt="Logo">
             <h2>Acceso al Facturador</h2>
             <p>Por favor, inicia sesión para continuar.</p>
-       <!-- <div class="g-signin2" data-onsuccess="onSignIn"></div> -->
-            <div id="googleButtonDiv"></div> 
+            <div id="googleButtonDiv"></div>
             <p style="font-size: 12px; color: #888; margin-top: 20px;">Hash Tec Solutions &copy; 2026</p>
         </div>
     </div>
@@ -239,7 +286,7 @@
                 <button type="button" class="opt-btn" style="background-color: #0e30ee;" onclick="startApp('FAC')">🧾 Nueva Factura</button>
                 <button type="button" class="opt-btn btn-load" onclick="showLoadModal()">📂 Documentos Guardados</button>
             </div>
-            <button type="button" class="btn-logout" style="margin-top: 30px;" onclick="signOut()">Cerrar Sesión</button>
+            <button type="button" class="btn-logout" style="margin-top: 30px; width: 100%; padding: 15px;" onclick="signOut()">Cerrar Sesión</button>
         </div>
     </div>
 
@@ -251,7 +298,6 @@
             <button type="button" class="btn-load" onclick="showLoadModal()">📂 Ver Guardados</button>
             <button type="button" onclick="addRow('', 1, 0)">+ Agregar Artículo</button>
             <button type="button" onclick="window.print()">🖨️ Imprimir</button>
-            
             <button type="button" class="btn-logout" onclick="signOut()">Cerrar Sesión</button>
         </div>
 
@@ -261,7 +307,7 @@
                 <h2>Hash Tec Solutions</h2>
                 <p>Panamá</p>
                 <p>RUC/Cédula: 8-812-1161</p>
-                <p>Tel: 6269-3224</p>
+                <p>Tel: 62693224</p>
                 <p>Email: hashtecsolutions@gmail.com</p>
             </div>
             <div class="doc-info">
@@ -285,19 +331,21 @@
             <input type="text" id="clientRUC" placeholder="RUC / Identificación">
         </div>
 
-        <table id="itemsTable">
-            <thead>
-                <tr>
-                    <th style="width: 45%;">Artículo</th>
-                    <th style="width: 15%;">Uds.</th>
-                    <th style="width: 20%;">Precio (PAB)</th>
-                    <th style="width: 20%;">Total (PAB)</th>
-                    <th class="controls" style="width: 5%;"></th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table id="itemsTable">
+                <thead>
+                    <tr>
+                        <th style="width: 45%;">Artículo</th>
+                        <th style="width: 15%;">Uds.</th>
+                        <th style="width: 20%;">Precio (PAB)</th>
+                        <th style="width: 20%;">Total (PAB)</th>
+                        <th class="controls" style="width: 5%;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
 
         <div class="totals">
             <p>Subtotal: <strong>PAB <span id="subtotalAmount">0.00</span></strong></p>
@@ -305,14 +353,16 @@
         </div>
 
         <div class="payment-info" id="paymentSection">
-            <strong>Método de pago:</strong>
-            <select id="paymentMethod" class="editable-status" onchange="updatePaymentDetails()">
-                <option value="Yappy">Yappy</option>
-                <option value="Efectivo">Efectivo</option>
-                <option value="ACH">ACH</option>
-                <option value="Cheque">Cheque</option>
-            </select>
-            <input type="text" id="paymentDetails" class="editable-text" value="6269-3224" placeholder="Detalles o referencia">
+            <div>
+                <strong>Método de pago:</strong>
+                <select id="paymentMethod" class="editable-status" onchange="updatePaymentDetails()">
+                    <option value="Yappy">Yappy</option>
+                    <option value="Efectivo">Efectivo</option>
+                    <option value="ACH">ACH</option>
+                    <option value="Cheque">Cheque</option>
+                </select>
+            </div>
+            <input type="text" id="paymentDetails" class="editable-text" value="62693224" placeholder="Detalles o referencia">
         </div>
     </div>
 
@@ -331,17 +381,13 @@
         // 1. CONFIGURACIÓN DE GOOGLE SIGN-IN
         // =========================================================
         
-        // REEMPLAZA ESTO CON TU CLIENT ID DE GOOGLE CLOUD CONSOLE
+        // ---> REEMPLAZA ESTO CON TU CLIENT ID DE GOOGLE <---
         const GOOGLE_CLIENT_ID = "812473123834-j64gvrhefrmc41c165pnkr263bir6d8v.apps.googleusercontent.com"; 
 
         function handleCredentialResponse(response) {
-            // Decodificar el Token que devuelve Google para sacar el nombre y correo
             const responsePayload = decodeJwtResponse(response.credential);
-            
-            // Guardar sesión en el navegador
             sessionStorage.setItem('hts_logged_in_user', responsePayload.name);
             sessionStorage.setItem('hts_logged_in_email', responsePayload.email);
-            
             checkLoginState();
         }
 
@@ -357,12 +403,10 @@
         function checkLoginState() {
             const user = sessionStorage.getItem('hts_logged_in_user');
             if (user) {
-                // Si está logueado, ocultar login y mostrar menú
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('welcomeMessage').textContent = "Usuario activo: " + user;
                 showSelectorScreen();
             } else {
-                // Si no, mostrar solo login
                 document.getElementById('login-screen').style.display = 'flex';
                 document.getElementById('selector-screen').style.display = 'none';
                 document.getElementById('main-app').style.display = 'none';
@@ -379,14 +423,12 @@
                 document.getElementById("googleButtonDiv"),
                 { theme: "outline", size: "large", text: "signin_with" }
             );
-            google.accounts.id.prompt(); // Mostrar pop-up de un solo toque
+            google.accounts.id.prompt(); 
         }
 
         function signOut() {
             sessionStorage.removeItem('hts_logged_in_user');
             sessionStorage.removeItem('hts_logged_in_email');
-            
-            // Recargar la página para limpiar memoria
             location.reload(); 
         }
 
@@ -458,15 +500,15 @@
         function updatePaymentDetails() {
             const method = document.getElementById('paymentMethod').value;
             const detailsInput = document.getElementById('paymentDetails');
-            if (method === 'Yappy') { detailsInput.value = '6269-3224'; } 
+            if (method === 'Yappy') { detailsInput.value = '62693224'; } 
             else if (method === 'Efectivo') { detailsInput.value = ''; detailsInput.placeholder = 'Monto exacto'; } 
             else if (method === 'ACH') { detailsInput.value = ''; detailsInput.placeholder = 'N° de cuenta o referencia'; } 
             else if (method === 'Cheque') { detailsInput.value = ''; detailsInput.placeholder = 'N° de cheque'; }
         }
 
         function showSelectorScreen() {
-            document.getElementById('login-screen').style.display = 'none';
             document.getElementById('main-app').style.display = 'none';
+            document.getElementById('login-screen').style.display = 'none';
             document.getElementById('selector-screen').style.display = 'flex';
         }
 
@@ -607,9 +649,9 @@
                     const statusText = doc.docStatus ? `<span style="font-size:12px; border:1px solid #ccc; padding:2px 5px; border-radius:3px;">${doc.docStatus}</span>` : '';
                     itemDiv.innerHTML = 
                         '<div class="saved-doc-info">' +
-                            '<p><strong style="color:' + badgeColor + '">[' + doc.type + ']</strong> <b>' + doc.docNumber + '</b> ' + statusText + ' - ' + doc.docDate + '</p>' +
-                            '<p>' + doc.clientName + '</p>' +
-                            '<p>Total: PAB ' + doc.total + '</p>' +
+                            '<p><strong style="color:' + badgeColor + '">[' + doc.type + ']</strong> <b>' + doc.docNumber + '</b> ' + statusText + '</p>' +
+                            '<p style="font-size: 13px; color: #555;">' + doc.docDate + ' | ' + doc.clientName + '</p>' +
+                            '<p><strong>Total: PAB ' + doc.total + '</strong></p>' +
                         '</div>' +
                         '<div class="saved-doc-actions">' +
                             '<button class="btn-load" onclick="applySavedDoc(\'' + doc.id + '\')">Abrir</button>' +
