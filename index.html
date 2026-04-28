@@ -4,10 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" sizes="64x64" href="HTS.png">
-    <title>Hash Tec Solutions - Facturación</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0056b3">
     <link rel="apple-touch-icon" href="HTS.png">
+    
+    <title>Hash Tec Solutions - Facturación</title>
+    
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
     <style>
         body { 
             font-family: Arial, sans-serif;
@@ -17,9 +21,36 @@
             background-color: #f4f4f9;
         }
 
-        /* Pantalla de Inicio */
-        #selector-screen {
+        /* --- Pantalla de Login --- */
+        #login-screen {
             display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 80vh;
+        }
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+        .login-container img {
+            max-width: 120px;
+            margin-bottom: 15px;
+        }
+        #googleButtonDiv {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        /* --- Pantalla de Inicio (Selector) --- */
+        #selector-screen {
+            display: none; /* Oculto por defecto hasta loguearse */
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -53,8 +84,14 @@
         .opt-btn:hover { transform: scale(1.05); }
         .btn-load { background-color: #17a2b8; }
         .btn-load:hover { background-color: #138496; }
+        
+        .user-welcome {
+            margin-top: 10px;
+            color: #555;
+            font-style: italic;
+        }
 
-        /* Contenedor Principal */
+        /* --- Contenedor Principal --- */
         .container {
             max-width: 800px;
             margin: auto;
@@ -71,6 +108,7 @@
             border-radius: 5px;
             display: flex;
             flex-wrap: wrap;
+            align-items: center;
             gap: 10px;
         }
         button {
@@ -86,6 +124,7 @@
         .btn-save:hover { background-color: #218838; }
         .btn-home { background-color: #6c757d; }
         .btn-danger { background-color: #dc3545; padding: 5px 10px; }
+        .btn-logout { background-color: #dc3545; margin-left: auto; }
 
         .logo {
             max-width: 100px;
@@ -110,19 +149,9 @@
             font-weight: bold;
             font-family: inherit;
         }
-        .editable-number {
-            width: 120px;
-            text-align: right;
-        }
-        .editable-status {
-            width: 130px;
-            background-color: #fff;
-            cursor: pointer;
-        }
-        .editable-text {
-            width: 200px;
-            font-weight: normal;
-        }
+        .editable-number { width: 120px; text-align: right; }
+        .editable-status { width: 130px; background-color: #fff; cursor: pointer; }
+        .editable-text { width: 200px; font-weight: normal; }
         
         .client-info {
             background: #f8f9fa;
@@ -144,18 +173,9 @@
             border-collapse: collapse; 
             margin-bottom: 20px; 
         }
-        th, td { 
-            border: 1px solid #ddd;
-            padding: 10px; 
-            text-align: left; 
-        }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
         th { background-color: #0e30ee; color: white; }
-        
-        input[list], input[type="number"] {
-            width: 100%;
-            padding: 5px;
-            box-sizing: border-box;
-        }
+        input[list], input[type="number"] { width: 100%; padding: 5px; box-sizing: border-box; }
         
         .totals { text-align: right; font-size: 16px; }
         .totals p { margin: 5px 0; }
@@ -172,59 +192,23 @@
 
         /* --- Ventana Emergente --- */
         .modal {
-            display: none; 
-            position: fixed; 
-            z-index: 1000; 
-            left: 0; top: 0; 
-            width: 100%; height: 100%; 
-            background-color: rgba(0,0,0,0.5); 
-            align-items: center; 
-            justify-content: center;
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0; 
+            width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); 
+            align-items: center; justify-content: center;
         }
         .modal-content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            background-color: white; padding: 20px; border-radius: 8px;
+            width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto;
         }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #ccc;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-        }
-        .close-btn {
-            background: none;
-            color: #333;
-            font-size: 24px;
-            font-weight: bold;
-            padding: 0;
-            cursor: pointer;
-        }
-        .close-btn:hover { background: none; color: red; }
-        .saved-doc-item {
-            border: 1px solid #ddd;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #f8f9fa;
-        }
-        .saved-doc-info p { margin: 3px 0; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ccc; padding-bottom: 10px; margin-bottom: 15px; }
+        .close-btn { background: none; color: #333; font-size: 24px; font-weight: bold; padding: 0; cursor: pointer; }
+        .saved-doc-item { border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; background-color: #f8f9fa; }
         .saved-doc-actions { display: flex; gap: 5px; }
 
         @media print {
             body { padding: 0; background-color: white; }
             .container { border: none; box-shadow: none; padding: 0; }
-            .controls, .btn-danger, #selector-screen, .modal { display: none !important; }
+            .controls, .btn-danger, #selector-screen, #login-screen, .modal { display: none !important; }
             input, select { border: none; background: transparent; appearance: none; -webkit-appearance: none; }
             .editable-number, .editable-status, .editable-text { border: none; width: auto; cursor: default; padding: 0;}
             .payment-info { display: flex !important; } 
@@ -233,27 +217,41 @@
 </head>
 <body>
 
+    <div id="login-screen">
+        <div class="login-container">
+            <img src="HTS.png" alt="Logo">
+            <h2>Acceso al Facturador</h2>
+            <p>Por favor, inicia sesión para continuar.</p>
+            <div id="googleButtonDiv"></div>
+            <p style="font-size: 12px; color: #888; margin-top: 20px;">Hash Tec Solutions &copy; 2026</p>
+        </div>
+    </div>
+
     <div id="selector-screen">
         <div class="selector-container">
             <img src="HTS.png" alt="Logo" style="max-width: 120px; margin-bottom: 15px;">
             <h2>Hash Tec Solutions</h2>
+            <p class="user-welcome" id="welcomeMessage">Bienvenido</p>
             <p>Seleccione el tipo de documento para iniciar:</p>
             <div class="selector-options">
                 <button type="button" class="opt-btn" onclick="startApp('COT')">📄 Nueva Cotización</button>
                 <button type="button" class="opt-btn" style="background-color: #0e30ee;" onclick="startApp('FAC')">🧾 Nueva Factura</button>
                 <button type="button" class="opt-btn btn-load" onclick="showLoadModal()">📂 Documentos Guardados</button>
             </div>
+            <button type="button" class="btn-logout" style="margin-top: 30px;" onclick="signOut()">Cerrar Sesión</button>
         </div>
     </div>
 
     <div class="container" id="main-app">
         <div class="controls">
-            <button type="button" class="btn-home" onclick="location.reload()">🏠 Inicio</button>
+            <button type="button" class="btn-home" onclick="showSelectorScreen()">🏠 Inicio</button>
             <button type="button" id="convertBtn" onclick="convertToInvoice()">Convertir a Factura</button>
             <button type="button" class="btn-save" onclick="saveQuotation()">💾 Guardar</button>
             <button type="button" class="btn-load" onclick="showLoadModal()">📂 Ver Guardados</button>
             <button type="button" onclick="addRow('', 1, 0)">+ Agregar Artículo</button>
-            <button type="button" onclick="window.print()">🖨️ Imprimir / PDF</button>
+            <button type="button" onclick="window.print()">🖨️ Imprimir</button>
+            
+            <button type="button" class="btn-logout" onclick="signOut()">Cerrar Sesión</button>
         </div>
 
         <div class="header">
@@ -282,7 +280,7 @@
 
         <div class="client-info">
             <strong>Datos del cliente</strong>
-            <input type="text" id="clientName" list="clientList" placeholder="Nombre de la empresa o cliente (Seleccione o escriba)" oninput="autoFillRUC()">
+            <input type="text" id="clientName" list="clientList" placeholder="Nombre de la empresa o cliente" oninput="autoFillRUC()">
             <input type="text" id="clientRUC" placeholder="RUC / Identificación">
         </div>
 
@@ -328,6 +326,73 @@
     </div>
 
     <script>
+        // =========================================================
+        // 1. CONFIGURACIÓN DE GOOGLE SIGN-IN
+        // =========================================================
+        
+        // REEMPLAZA ESTO CON TU CLIENT ID DE GOOGLE CLOUD CONSOLE
+        const GOOGLE_CLIENT_ID = 812473123834-j64gvrhefrmc41c165pnkr263bir6d8v.apps.googleusercontent.com; 
+
+        function handleCredentialResponse(response) {
+            // Decodificar el Token que devuelve Google para sacar el nombre y correo
+            const responsePayload = decodeJwtResponse(response.credential);
+            
+            // Guardar sesión en el navegador
+            sessionStorage.setItem('hts_logged_in_user', responsePayload.name);
+            sessionStorage.setItem('hts_logged_in_email', responsePayload.email);
+            
+            checkLoginState();
+        }
+
+        function decodeJwtResponse(token) {
+            var base64Url = token.split('.')[1];
+            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        }
+
+        function checkLoginState() {
+            const user = sessionStorage.getItem('hts_logged_in_user');
+            if (user) {
+                // Si está logueado, ocultar login y mostrar menú
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('welcomeMessage').textContent = "Usuario activo: " + user;
+                showSelectorScreen();
+            } else {
+                // Si no, mostrar solo login
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('selector-screen').style.display = 'none';
+                document.getElementById('main-app').style.display = 'none';
+                renderGoogleButton();
+            }
+        }
+
+        function renderGoogleButton() {
+            google.accounts.id.initialize({
+                client_id: GOOGLE_CLIENT_ID,
+                callback: handleCredentialResponse
+            });
+            google.accounts.id.renderButton(
+                document.getElementById("googleButtonDiv"),
+                { theme: "outline", size: "large", text: "signin_with" }
+            );
+            google.accounts.id.prompt(); // Mostrar pop-up de un solo toque
+        }
+
+        function signOut() {
+            sessionStorage.removeItem('hts_logged_in_user');
+            sessionStorage.removeItem('hts_logged_in_email');
+            
+            // Recargar la página para limpiar memoria
+            location.reload(); 
+        }
+
+        // =========================================================
+        // 2. LÓGICA DE LA APLICACIÓN (FACTURADOR)
+        // =========================================================
+
         const defaultCatalog = {
             "UPS": 45.00,
             "Unión RJ45": 2.60,
@@ -337,40 +402,30 @@
         };
         
         let currentCatalog = {};
-        let savedClients = {}; // Objeto para almacenar clientes guardados
+        let savedClients = {};
 
-        // --- FUNCIONES DE CARGA Y CONSTRUCCIÓN DE LISTAS ---
         function loadData() {
-            // Cargar Catálogo
             const customCatalog = JSON.parse(localStorage.getItem('hts_custom_catalog')) || {};
             currentCatalog = Object.assign({}, defaultCatalog, customCatalog);
-            
-            // Cargar Clientes
             savedClients = JSON.parse(localStorage.getItem('hts_saved_clients')) || {};
         }
 
         function buildDataLists() {
-            // Lista de Artículos
             let itemDatalist = document.getElementById('catalogList');
             if(itemDatalist) { itemDatalist.remove(); }
             itemDatalist = document.createElement('datalist');
             itemDatalist.id = 'catalogList';
             for (const item in currentCatalog) {
-                const option = document.createElement('option');
-                option.value = item;
-                itemDatalist.appendChild(option);
+                const option = document.createElement('option'); option.value = item; itemDatalist.appendChild(option);
             }
             document.body.appendChild(itemDatalist);
 
-            // Lista de Clientes
             let clientDatalist = document.getElementById('clientList');
             if(clientDatalist) { clientDatalist.remove(); }
             clientDatalist = document.createElement('datalist');
             clientDatalist.id = 'clientList';
             for (const clientName in savedClients) {
-                const option = document.createElement('option');
-                option.value = clientName;
-                clientDatalist.appendChild(option);
+                const option = document.createElement('option'); option.value = clientName; clientDatalist.appendChild(option);
             }
             document.body.appendChild(clientDatalist);
         }
@@ -383,10 +438,8 @@
             document.getElementById('docDateDisplay').textContent = day + '/' + month + '/' + year;
         }
 
-        // --- LÓGICA DE INTERFAZ ---
         function autoFillRUC() {
             const clientName = document.getElementById('clientName').value;
-            // Si el cliente existe en nuestra lista guardada, rellenar el RUC
             if (savedClients[clientName] !== undefined) {
                 document.getElementById('clientRUC').value = savedClients[clientName];
             }
@@ -404,19 +457,16 @@
         function updatePaymentDetails() {
             const method = document.getElementById('paymentMethod').value;
             const detailsInput = document.getElementById('paymentDetails');
-            
-            if (method === 'Yappy') {
-                detailsInput.value = '6269-3224';
-            } else if (method === 'Efectivo') {
-                detailsInput.value = '';
-                detailsInput.placeholder = 'Monto exacto';
-            } else if (method === 'ACH') {
-                detailsInput.value = '';
-                detailsInput.placeholder = 'N° de cuenta o referencia';
-            } else if (method === 'Cheque') {
-                detailsInput.value = '';
-                detailsInput.placeholder = 'N° de cheque';
-            }
+            if (method === 'Yappy') { detailsInput.value = '6269-3224'; } 
+            else if (method === 'Efectivo') { detailsInput.value = ''; detailsInput.placeholder = 'Monto exacto'; } 
+            else if (method === 'ACH') { detailsInput.value = ''; detailsInput.placeholder = 'N° de cuenta o referencia'; } 
+            else if (method === 'Cheque') { detailsInput.value = ''; detailsInput.placeholder = 'N° de cheque'; }
+        }
+
+        function showSelectorScreen() {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('main-app').style.display = 'none';
+            document.getElementById('selector-screen').style.display = 'flex';
         }
 
         function startApp(type) {
@@ -444,29 +494,21 @@
         }
 
         function addRow(itemName, qty, price) {
-            itemName = itemName || "";
-            qty = qty || 1;
-            price = price || 0;
-
+            itemName = itemName || ""; qty = qty || 1; price = price || 0;
             const tbody = document.querySelector('#itemsTable tbody');
             const tr = document.createElement('tr');
             const safePrice = parseFloat(price).toFixed(2);
-            
             tr.innerHTML = 
                 '<td><input type="text" list="catalogList" placeholder="Escriba..." oninput="updatePrice(this)" value="' + itemName + '"></td>' +
                 '<td><input type="number" value="' + qty + '" min="1" onchange="calculateTotals()"></td>' +
                 '<td><input type="number" value="' + safePrice + '" step="0.01" onchange="calculateTotals()"></td>' +
                 '<td class="row-total">PAB 0.00</td>' +
                 '<td class="controls"><button type="button" class="btn-danger" onclick="removeRow(this)">X</button></td>';
-            
             tbody.appendChild(tr);
             calculateTotals();
         }
 
-        function removeRow(button) {
-            button.closest('tr').remove();
-            calculateTotals();
-        }
+        function removeRow(button) { button.closest('tr').remove(); calculateTotals(); }
 
         function updatePrice(inputElem) {
             const row = inputElem.closest('tr');
@@ -479,8 +521,7 @@
 
         function calculateTotals() {
             let subtotal = 0;
-            const rows = document.querySelectorAll('#itemsTable tbody tr');
-            rows.forEach(function(row) {
+            document.querySelectorAll('#itemsTable tbody tr').forEach(function(row) {
                 const qty = parseFloat(row.querySelector('td:nth-child(2) input').value) || 0;
                 const price = parseFloat(row.querySelector('td:nth-child(3) input').value) || 0;
                 const rowTotal = qty * price;
@@ -494,24 +535,17 @@
         function convertToInvoice() {
             document.getElementById('docTypeTitle').textContent = "Factura";
             let inputNumber = document.getElementById('docNumber');
-            if(inputNumber.value.includes("COT")) {
-                inputNumber.value = inputNumber.value.replace("COT", "FAC");
-            } else if (!inputNumber.value.includes("FAC")) {
-                inputNumber.value = "FAC-" + inputNumber.value;
-            }
+            if(inputNumber.value.includes("COT")) { inputNumber.value = inputNumber.value.replace("COT", "FAC"); } 
+            else if (!inputNumber.value.includes("FAC")) { inputNumber.value = "FAC-" + inputNumber.value; }
             document.getElementById('docStatus').value = "Pagada";
             togglePaymentInfo();
             document.getElementById('convertBtn').style.display = "none";
-            alert("Convertido a Factura correctamente. (Recuerda Guardar si deseas mantener los cambios)");
+            alert("Convertido a Factura correctamente.");
         }
 
-        // --- SISTEMA DE GUARDADO ---
         function saveQuotation() {
             const currentDocNumber = document.getElementById('docNumber').value;
-            if(currentDocNumber.trim() === "") {
-                alert("El documento debe tener un número (N°) antes de guardarse.");
-                return;
-            }
+            if(currentDocNumber.trim() === "") { alert("El documento debe tener un número (N°) antes de guardarse."); return; }
 
             const clientNameVal = document.getElementById('clientName').value.trim();
             const clientRUCVal = document.getElementById('clientRUC').value.trim();
@@ -530,56 +564,33 @@
                 items: []
             };
             
-            // GUARDAR O ACTUALIZAR CLIENTE
-            if (clientNameVal !== "") {
-                savedClients[clientNameVal] = clientRUCVal;
-                localStorage.setItem('hts_saved_clients', JSON.stringify(savedClients));
-            }
+            if (clientNameVal !== "") { savedClients[clientNameVal] = clientRUCVal; localStorage.setItem('hts_saved_clients', JSON.stringify(savedClients)); }
 
             let customCatalog = JSON.parse(localStorage.getItem('hts_custom_catalog')) || {};
             let catalogUpdated = false;
 
-            const rows = document.querySelectorAll('#itemsTable tbody tr');
-            rows.forEach(function(row) {
+            document.querySelectorAll('#itemsTable tbody tr').forEach(function(row) {
                 const name = row.querySelector('td:nth-child(1) input').value.trim();
                 const price = parseFloat(row.querySelector('td:nth-child(3) input').value) || 0;
                 
                 if (name !== "") {
-                    data.items.push({
-                        name: name,
-                        qty: row.querySelector('td:nth-child(2) input').value,
-                        price: row.querySelector('td:nth-child(3) input').value
-                    });
-
-                    // APRENDIZAJE DE ARTÍCULOS
-                    if (currentCatalog[name] === undefined && price > 0) {
-                        customCatalog[name] = price;
-                        catalogUpdated = true;
-                    }
+                    data.items.push({ name: name, qty: row.querySelector('td:nth-child(2) input').value, price: row.querySelector('td:nth-child(3) input').value });
+                    if (currentCatalog[name] === undefined && price > 0) { customCatalog[name] = price; catalogUpdated = true; }
                 }
             });
 
-            // Guardar documento
             let savedDocs = JSON.parse(localStorage.getItem('hts_saved_docs_list')) || [];
             const existingIndex = savedDocs.findIndex(doc => doc.id === data.id);
-            if(existingIndex >= 0) {
-                savedDocs[existingIndex] = data; 
-            } else {
-                savedDocs.push(data); 
-            }
+            if(existingIndex >= 0) { savedDocs[existingIndex] = data; } else { savedDocs.push(data); }
             localStorage.setItem('hts_saved_docs_list', JSON.stringify(savedDocs));
 
-            // Actualizar listas si hubo cambios
             if(catalogUpdated || clientNameVal !== "") {
                 if(catalogUpdated) localStorage.setItem('hts_custom_catalog', JSON.stringify(customCatalog));
-                loadData();
-                buildDataLists();
+                loadData(); buildDataLists();
             }
-
             alert("Documento '" + data.id + "' guardado exitosamente.");
         }
 
-        // --- VENTANA MODAL (ADMINISTRACIÓN) ---
         function showLoadModal() {
             const savedDocs = JSON.parse(localStorage.getItem('hts_saved_docs_list')) || [];
             const listContainer = document.getElementById('savedDocsList');
@@ -591,10 +602,8 @@
                 savedDocs.slice().reverse().forEach(function(doc) {
                     const itemDiv = document.createElement('div');
                     itemDiv.className = 'saved-doc-item';
-                    
                     const badgeColor = doc.type === 'Factura' ? '#0e30ee' : '#28a745';
                     const statusText = doc.docStatus ? `<span style="font-size:12px; border:1px solid #ccc; padding:2px 5px; border-radius:3px;">${doc.docStatus}</span>` : '';
-                    
                     itemDiv.innerHTML = 
                         '<div class="saved-doc-info">' +
                             '<p><strong style="color:' + badgeColor + '">[' + doc.type + ']</strong> <b>' + doc.docNumber + '</b> ' + statusText + ' - ' + doc.docDate + '</p>' +
@@ -605,48 +614,30 @@
                             '<button class="btn-load" onclick="applySavedDoc(\'' + doc.id + '\')">Abrir</button>' +
                             '<button class="btn-danger" onclick="deleteSavedDoc(\'' + doc.id + '\')">Borrar</button>' +
                         '</div>';
-                    
                     listContainer.appendChild(itemDiv);
                 });
             }
-            
             document.getElementById('loadModal').style.display = 'flex';
         }
 
-        function closeModal() {
-            document.getElementById('loadModal').style.display = 'none';
-        }
+        function closeModal() { document.getElementById('loadModal').style.display = 'none'; }
 
         function applySavedDoc(docId) {
             const savedDocs = JSON.parse(localStorage.getItem('hts_saved_docs_list')) || [];
             const data = savedDocs.find(doc => doc.id === docId);
-            
             if(data) {
                 startApp(data.type === 'Factura' ? 'FAC' : 'COT');
-                
                 document.getElementById('docNumber').value = data.docNumber;
                 document.getElementById('docDateDisplay').textContent = data.docDate;
                 document.getElementById('clientName').value = data.clientName === "Cliente sin nombre" ? "" : data.clientName;
                 document.getElementById('clientRUC').value = data.clientRUC || "";
-                
                 if (data.docStatus) { document.getElementById('docStatus').value = data.docStatus; }
-                
                 if (data.paymentMethod) { document.getElementById('paymentMethod').value = data.paymentMethod; }
                 if (data.paymentDetails !== undefined) { document.getElementById('paymentDetails').value = data.paymentDetails; }
-                
                 togglePaymentInfo();
                 
-                const tbody = document.querySelector('#itemsTable tbody');
-                tbody.innerHTML = '';
-                
-                if (data.items && data.items.length > 0) {
-                    data.items.forEach(function(item) {
-                        addRow(item.name, item.qty, item.price);
-                    });
-                } else {
-                    addRow('', 1, 0);
-                }
-                
+                const tbody = document.querySelector('#itemsTable tbody'); tbody.innerHTML = '';
+                if (data.items && data.items.length > 0) { data.items.forEach(function(item) { addRow(item.name, item.qty, item.price); }); } else { addRow('', 1, 0); }
                 closeModal();
             }
         }
@@ -660,28 +651,32 @@
             }
         }
 
-        window.onclick = function(event) {
-            const modal = document.getElementById('loadModal');
-            if (event.target == modal) {
-                closeModal();
-            }
+        window.onclick = function(event) { if (event.target == document.getElementById('loadModal')) { closeModal(); } }
+
+        // =========================================================
+        // REGISTRO DE SERVICE WORKER PARA LA PWA
+        // =========================================================
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('./sw.js').then(function(registration) {
+                    console.log('PWA Lista');
+                }, function(err) {
+                    console.log('Error PWA: ', err);
+                });
+            });
         }
 
+        // =========================================================
+        // INICIO AL CARGAR LA PÁGINA
+        // =========================================================
         window.onload = function() {
             loadData(); 
             setFormattedDate();
             buildDataLists();
+            
+            // Verificar si el usuario ya está logueado al abrir la app
+            checkLoginState();
         };
-        // Registrar Service Worker para la PWA
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('./sw.js').then(function(registration) {
-                    console.log('ServiceWorker registrado con éxito con el alcance: ', registration.scope);
-                }, function(err) {
-                    console.log('Fallo al registrar el ServiceWorker: ', err);
-                });
-            });
-        }
     </script>
 </body>
 </html>
